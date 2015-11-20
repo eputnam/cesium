@@ -1,0 +1,1 @@
+{"properties":{"id":{"minimum":0,"maximum":99},"height":{"minimum":0.8077715756371617,"maximum":99.64941241778433}},"geometricError":40,"root":{"box":[-1.319970476767974,0.6986942109000001,-1.3199295232320258,0.6987257891,0,9],"geometricError":0,"content":{"url":"compositeNoTiles.cmpt"}}}

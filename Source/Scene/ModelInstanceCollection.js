@@ -95,9 +95,10 @@ define([
         }
         //>>includeEnd('debug');
 
+        this.show = defaultValue(options.show, true);
+
         this._instancingSupported = false;
         this._dynamic = defaultValue(options.dynamic, false);
-        this._show = defaultValue(options.show, true);
         this._allowPicking = defaultValue(options.allowPicking, true);
         this._cull = defaultValue(options.cull, true);
         this._ready = false;
@@ -133,8 +134,8 @@ define([
         this._modelCommands = undefined;
 
         this._boundingVolume = options.boundingVolume;
-        this._boundingVolumeModel = new Matrix4();
         this._boundingVolumeModelView = new Matrix4();
+        this._boundingVolumeExpand = !defined(options.boundingVolume);
 
         // Passed on to Model
         this._url = options.url;
@@ -151,11 +152,6 @@ define([
     };
 
     defineProperties(ModelInstanceCollection.prototype, {
-        show : {
-            get : function() {
-                return this._show;
-            }
-        },
         allowPicking : {
             get : function() {
                 return this._allowPicking;
@@ -395,7 +391,7 @@ define([
 
     function createBoundsModelViewFunction(collection, context) {
         return function() {
-            return Matrix4.multiplyTransformation(context.uniformState.view, collection._boundingVolumeModel, collection._boundingVolumeModelView);
+            return Matrix4.multiplyByTranslation(context.uniformState.view, collection._boundingVolume.center, collection._boundingVolumeModelView);
         };
     }
 
@@ -511,8 +507,6 @@ define([
             BoundingSphere.fromPoints(points, boundingSphere);
             collection._boundingVolume = boundingSphere;
         }
-
-        Matrix4.fromTranslation(collection._boundingVolume.center, collection._boundingVolumeModel);
     }
 
     function createModel(collection, context) {
@@ -754,8 +748,6 @@ define([
         };
     }
 
-    var emptyCommandList = [];
-
     ModelInstanceCollection.prototype.update = function(frameState) {
         if (frameState.mode !== SceneMode.SCENE3D) {
             return;
@@ -776,6 +768,11 @@ define([
         if (this._state === LoadState.NEEDS_LOAD) {
             this._state = LoadState.LOADING;
             createModel(this, context);
+            var that = this;
+            when(this._model.readyPromise).otherwise(function(error) {
+                that._state = LoadState.FAILED;
+                that.readyPromise.reject(error);
+            });
         }
 
         if (instancingSupported) {
@@ -784,17 +781,16 @@ define([
         }
 
         var model = this._model;
-        var savedCommands = frameState.commandList;
-        frameState.commandList = emptyCommandList;
-
         model.update(frameState);
-
-        frameState.commandList = savedCommands;
-        emptyCommandList.length = 0;
 
         if (model.ready && (this._state === LoadState.LOADING)) {
             this._state = LoadState.LOADED;
             this._ready = true;
+
+            // Expand bounding volume to fit the radius of the loaded model
+            if (this._boundingVolumeExpand) {
+                this._boundingVolume.radius += model.boundingSphere.radius;
+            }
 
             var modelCommands = getModelCommands(model);
             createCommands(this, modelCommands.draw, modelCommands.pick, context);

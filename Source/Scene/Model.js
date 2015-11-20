@@ -366,9 +366,9 @@ define([
                     var result = parseBinaryGltfHeader(gltf);
 
                     // CESIUM_binary_glTF is from the beginning of the file but
-                    //  KHR_binary_glTF is from the beginning of the binary section
+                    // KHR_binary_glTF is from the beginning of the binary section
                     if (result.binaryOffset !== 0) {
-                        gltf = new Uint8Array(gltf.buffer, result.binaryOffset);
+                        gltf = gltf.subarray(result.binaryOffset);
                     }
 
                     cachedGltf = new CachedGltf({
@@ -1001,7 +1001,7 @@ define([
                     // CESIUM_binary_glTF is from the beginning of the file but
                     //  KHR_binary_glTF is from the beginning of the binary section
                     if (result.binaryOffset !== 0) {
-                        array = new Uint8Array(arrayBuffer, result.binaryOffset);
+                        array = array.subarray(result.binaryOffset);
                     }
                     cachedGltf.makeReady(result.glTF, array);
                 } else {

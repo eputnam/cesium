@@ -958,7 +958,6 @@ define([
             throw new DeveloperError('drawCommand.shaderProgram is required.');
         }
         //>>includeEnd('debug');
-
         passState = defaultValue(passState, this._defaultPassState);
         // The command's framebuffer takes presidence over the pass' framebuffer, e.g., for off-screen rendering.
         var framebuffer = defaultValue(drawCommand.framebuffer, passState.framebuffer);

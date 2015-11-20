@@ -43,7 +43,7 @@ var camera = viewer.camera;
 scene.debugShowFramesPerSecond = true;
 
 var instancedArraysExtension = context._instancedArrays;
-var count = 1024;
+var count = 1;
 var spacing = 0.0002;
 var url = '../../SampleData/models/CesiumAir/Cesium_Air.gltf';
 var dynamic = false;
@@ -144,8 +144,7 @@ function reset() {
 
             instances.push({
                 modelMatrix : modelMatrix,
-                color : color,
-                show : show
+                color : color
             });
         }
     }
@@ -156,7 +155,7 @@ function reset() {
 Sandcastle.addToolbarMenu([ {
     text : '1024 instances',
     onselect : function() {
-        count = 1024;
+        count = 1;
         reset();
     }
 }, {

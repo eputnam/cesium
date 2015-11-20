@@ -5,6 +5,7 @@ define([
         '../Core/destroyObject',
         '../Core/DeveloperError',
         '../Core/Ellipsoid',
+        '../Core/getBaseUri',
         '../Core/getMagic',
         '../Core/getStringFromTypedArray',
         '../Core/loadArrayBuffer',
@@ -21,6 +22,7 @@ define([
         destroyObject,
         DeveloperError,
         Ellipsoid,
+        getBaseUri,
         getMagic,
         getStringFromTypedArray,
         loadArrayBuffer,
@@ -128,14 +130,8 @@ define([
         byteOffset += sizeOfUint32;
 
         //>>includeStart('debug', pragmas.debug);
-        if (gltfByteLength < 0) {
-            throw new DeveloperError('glTF byte length must be greater than or equal to zero. Value is ' + gltfByteLength + '.');
-        }
         if ((gltfFormat !== 0) && (gltfFormat !== 1)) {
             throw new DeveloperError('Only glTF format 0 (uri) or 1 (embedded) are supported. Format ' + gltfFormat + ' is not');
-        }
-        if (instancesLength < 0) {
-            throw new DeveloperError('Instances length must be greater than or equal to zero. Value is ' + instancesLength + '.');
         }
         //>>includeEnd('debug');
 
@@ -171,7 +167,7 @@ define([
 
         if (gltfFormat === 0) {
             var gltfUrl = getStringFromTypedArray(gltfView);
-            var url = (new Uri(gltfUrl).isAbsolute()) ? gltfUrl : this._tileset.url + gltfUrl;
+            var url = (new Uri(gltfUrl).isAbsolute()) ? gltfUrl : getBaseUri(this._tileset.url) + gltfUrl;
             collectionOptions.url = url;
             // TODO : how to get the correct headers
         } else {
